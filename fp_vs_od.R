@@ -8,7 +8,7 @@
 
 # Setting Local Variables -------------------------------------------------
 # Load custom functions
-source("~/PCAnalysisPackageAutomatisation.R")
+source("FunctionSet.R")
 # Read in the data
 data <- read.csv("~/20170421_gapdlenght+other_gain100/Aangepastedata.csv")
 # read in the correlation between teacnOD and cuvetOD
@@ -25,10 +25,7 @@ library(ggplot2)
 library(plyr)
 library(reshape2)
 library(grofit)
-
-
-# Functions ---------------------------------------------------------------
-
+library(tidyverse)
 
 
 # Preparing the data ------------------------------------------------------
@@ -36,27 +33,17 @@ library(grofit)
 cl <- makeCluster(detectCores())
 registerDoParallel(cl)
 
-# Processing 
-#data split per well and per signal
-# dataJump.split = split(data, list(data$well, data$signal))
-# jumpyCorrect <- foreach(counter=1:length(dataJump.split), .combine="rbind") %dopar% {
-#   df = dataJump.split[[counter]]
-#   corrected = df
-#   if (df$signal[1] == "FLUO_475_515_100"){
-#     corrected= JumpCorrection(df, 200)
-#   }
-#   return(corrected)
-# }
-#set the new dataset as the original
-#data = jumpyCorrect
-
-data = TimeToHour(data, "time")
+data <- mutate(data, time_hour = time/3600) # time in second to hours 
+data <- mutate(data, value = ifelse(signal == "ABS_600_600_NA", 
+                                    CorLang[[1]] + CorLang[[2]] * value + CorLang[[3]] * value * value, 
+                                    value
+                                    ))
 
 # recalculate reader OD to "cuvet OD"
 
-data$value[data$signal == "ABS_600_600_NA"] <-  (CorLang[[1]] + CorLang[[2]] * (data$value[data$signal == "ABS_600_600_NA"]) + CorLang[[3]] * ((data$value[data$signal == "ABS_600_600_NA"])^2))
+# data$value[data$signal == "ABS_600_600_NA"] <-  (CorLang[[1]] + CorLang[[2]] * (data$value[data$signal == "ABS_600_600_NA"]) + CorLang[[3]] * ((data$value[data$signal == "ABS_600_600_NA"])^2))
 
-# General OD graphs 
+# General OD graphs
 GeneralPlotting(data, c("strain","medium"))
 
 # Individual plotting and fitting of the correct data
