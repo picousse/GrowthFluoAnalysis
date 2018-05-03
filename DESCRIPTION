@@ -1,0 +1,10 @@
+Package: GrowthAnalysis
+Type: Package
+Title: Growth Analysis @ Inbiose
+Version: 0.1.0
+Author: Pieter Coussement
+Maintainer: Pieter Coussement <coussementpieter@gmail.com>
+Description: Info
+License: GPL3 
+Encoding: UTF-8
+LazyData: true
